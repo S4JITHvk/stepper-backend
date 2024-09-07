@@ -11,7 +11,7 @@ app.use(cookieParser());
 
 //cors
 app.use(cors({
-    origin:["http://localhost:8001"],
+    origin:["http://localhost:8001" || "https://stepper-app.vercel.app"],
     credentials:true
 }));
 
