@@ -69,31 +69,43 @@ const addEmployee = async (req, res) => {
   const edit_employee = async (req, res) => {
     try {
       const { empid, personalDetails, companyDetails, educationDetails } = req.body;
-        console.log(companyDetails)
       if (!empid) {
         return res.status(400).json({ message: "Employee ID is required." });
+      } 
+      const { email, phone } = personalDetails;
+      const existingEmployee = await Employee.findOne({
+        _id: { $ne: empid }, 
+        $or: [{ "personalDetails.email": email }, { "personalDetails.phone": phone }]
+      });
+  
+      if (existingEmployee) {
+        return res.status(400).json({
+          message: `Employee with email or phone already exists please do check..`
+        });
       }
       const updatedEmployee = await Employee.findOneAndUpdate(
         { _id: empid },
         {
           $set: {
-            personalDetails:personalDetails,
-            employment:companyDetails,
-            education:educationDetails
+            personalDetails: personalDetails,
+            employment: companyDetails,
+            education: educationDetails
           }
         },
-        { new: true, runValidators: true } 
+        { new: true, runValidators: true }
       );
   
       if (!updatedEmployee) {
         return res.status(404).json({ message: "Employee not found." });
       }
+  
       res.status(200).json({ message: "Employee updated successfully." });
     } catch (error) {
       console.error("Error updating employee:", error);
       res.status(500).json({ message: "Error updating employee. Please try again." });
     }
   };
+  
 module.exports = { 
     addEmployee,
     fetch_Employees,
